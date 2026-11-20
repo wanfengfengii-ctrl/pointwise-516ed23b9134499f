@@ -1,0 +1,46 @@
+{
+  "batch": "HP-01",
+  "stations": [
+    {
+      "station": "bench-a",
+      "role": "alpha",
+      "scales_um": ["1", "1", "1"],
+      "drift": {"lower": "-1/4", "upper": "1/4", "unit": "normalized"},
+      "measurements": [
+        {
+          "name": "reference-A",
+          "value": "1/2",
+          "unit": "normalized",
+          "constraints": [
+            {"coefficients": ["-1", "1", "-1"], "units": ["normalized", "normalized", "normalized"], "op": "=", "bound": "0"}
+          ]
+        }
+      ]
+    },
+    {
+      "station": "bench-b",
+      "role": "beta",
+      "scales_um": ["1", "1", "1"],
+      "drift": {"lower": "0", "upper": "0", "unit": "normalized"},
+      "measurements": [
+        {"name": "reference-B", "value": "1/2", "unit": "normalized", "constraints": []}
+      ]
+    }
+  ],
+  "beta_correction": [
+    {
+      "name": "reference-B",
+      "value": "1/2",
+      "unit": "normalized",
+      "constraints": [
+        {"coefficients": ["-1", "1", "0"], "units": ["normalized", "normalized", "normalized"], "op": "=", "bound": "0"}
+      ]
+    }
+  ],
+  "expected_before": {
+    "evidence_domain": [["0", "1", true, true]],
+    "low": [["0", "1/4", true, true]],
+    "high": [["3/4", "1", true, true]],
+    "manual": [["1/4", "3/4", false, false]]
+  }
+}
