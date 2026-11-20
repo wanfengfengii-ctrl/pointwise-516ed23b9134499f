@@ -90,3 +90,39 @@ class DecisionTests(ShiftCase):
             'high': [['1/4', '3/8', True, True], ['5/8', '3/4', True, True]],
             'manual': [['3/8', '5/8', False, False]],
         })
+
+    def test_private_drift_is_eliminated_from_frozen_relation(self):
+        # The frozen relation must reflect q-p=t jointly with |t|<=1/4, not the
+        # independent coordinate spans of the two stations.
+        alpha, _ = self.pair()
+        self.assertTrue(alpha.piece.evidence.contains('1/2', '1/4'))
+        self.assertTrue(alpha.piece.evidence.contains('1/2', '3/4'))
+        self.assertFalse(alpha.piece.evidence.contains('0', 1))
+        self.assertFalse(alpha.piece.evidence.contains('1', 0))
+        self.assertFalse(alpha.piece.evidence.contains('1/2', 0))
+        scenario('check_projection.private_drift', {'alpha': 'q-p=t, |t|<=1/4'},
+                 [True, True, False, False], [alpha.piece.evidence.contains('1/2', '1/4'),
+                                              alpha.piece.evidence.contains('1/2', '3/4'),
+                                              alpha.piece.evidence.contains('0', 1),
+                                              alpha.piece.evidence.contains('1', 0)],
+                 True, True, ['release/projection.py'],
+                 'Fourier-Motzkin 消去 t 后 q-p 落在 [-1/4,1/4]')
+
+    def test_midpoint_needs_manual_under_universal_guarantee(self):
+        alpha, beta = self.pair()
+        decision = self.finish(alpha, beta).assessment
+        midpoint = Fraction(1, 2)
+        self.assertFalse(any(span.contains(midpoint) for span in decision.low))
+        self.assertFalse(any(span.contains(midpoint) for span in decision.high))
+        self.assertTrue(any(span.contains(midpoint) for span in decision.manual))
+
+    def test_flat_slice_on_limit_is_usable_throughout(self):
+        # A station that pins q = 1/2 for every p leaves residual exactly 1/2
+        # for both gears, so the whole domain is usable and nothing is manual.
+        alpha = self.admitted_revision(self.seed('alpha', [
+            measurement('flat', constraint(0, 1, 0, '1/2'), constraint(0, 1, 0, '1/2', '>='))]))
+        beta = self.admitted_revision(self.seed('beta'))
+        decision = self.finish(alpha, beta).assessment.as_data()
+        self.assertEqual(decision, {
+            'evidence_domain': DOMAIN, 'low': DOMAIN, 'high': DOMAIN, 'manual': [],
+        })

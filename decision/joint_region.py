@@ -19,6 +19,12 @@ def build_joint_region(alpha, beta):
 
 
 def supported_readings(region):
+    """Exact p-projection of the joint region (a filled convex closed set).
+
+    The evidence domain is exactly the set of readings p for which some q
+    keeps the pair jointly feasible.  Using the joint vertices' p-extremes is
+    exact because the joint region is convex, so its p-image is an interval.
+    """
     if not region.vertices:
         return ()
     return (RationalInterval(region.vertices[0][0], region.vertices[-1][0]),)

@@ -29,6 +29,6 @@ class Assessment:
 def assess(pair: AcceptedPair, policy: GearPolicy):
     region = build_joint_region(pair.alpha.piece.evidence, pair.beta.piece.evidence)
     domain = supported_readings(region)
-    low = guaranteed_readings(region, policy.low)
-    high = guaranteed_readings(region, policy.high)
+    low = guaranteed_readings(region, policy.low, domain)
+    high = guaranteed_readings(region, policy.high, domain)
     return Assessment(domain, low, high, subtract_intervals(domain, (*low, *high)))
